@@ -84,6 +84,12 @@ public static List<Id> getContactsIdsByLastName(){
     //  The body of the method
     //}
 
+    public static List<Opportunity> getClosedWonOpportunityCountByAccount(Id accountId){
+        return [SELECT Name, StageName, CloseDate, Amount,  AccountId
+        FROM Opportunity
+        WHERE AccountId = :accountId AND StageName = 'Closed Won']; 
+    }
+
     /**
      * Question 5
      * Update/Uncomment the template code to create a method
@@ -91,9 +97,18 @@ public static List<Id> getContactsIdsByLastName(){
      * @return The Integer count of Account records.
      * Update the corresponding test class and testGetAccountCount method to cover this method
      */
+
     //[public | private ] [static] data_type method_name (input parameters) {
     //  The body of the method
     //}
+
+    public static Integer getAccountCount(){
+
+    List<AggregateResult> Results = [SELECT COUNT(Id) accCount FROM Account];
+        Integer count = (Integer)Results[0].get('accCount');
+        return count;
+    
+}
 
     /**
      * Question 6

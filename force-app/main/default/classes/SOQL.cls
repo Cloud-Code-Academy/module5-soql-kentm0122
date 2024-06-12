@@ -16,7 +16,7 @@
 * Users of this class can expect to gain a solid understanding of SOQL in Apex and
 * be prepared to handle data retrieval tasks in Salesforce development.
 * 
-* @author Your Name
+* @author Michael Kent
 */
 
 public with sharing class SOQL {
@@ -31,6 +31,9 @@ public with sharing class SOQL {
     //[public | private ] [static] data_type method_name (input parameters) {
     //  The body of the method
     //}
+    public static list<Lead> getAllLeads() {
+        return [SELECT Id, LastName, Company, Phone, Email FROM Lead];
+    }
 
     /**
      * Question 2
@@ -42,6 +45,9 @@ public with sharing class SOQL {
     //[public | private ] [static] data_type method_name (input parameters) {
     //  The body of the method
     //}
+    public static List<contact> getContactsByFirstName(String firstName) {
+        return [SELECT Id, firstName, LastName, Name FROM CONTACT WHERE firstName = :firstName];
+    }
 
     /**
      * Question 3
@@ -54,6 +60,17 @@ public with sharing class SOQL {
     //  The body of the method
     //}
 
+public static List<Id> getContactsIdsByLastName(){
+    List<Contact> contactIdList = [SELECT Id FROM CONTACT WHERE lastName = 'Smith' OR lastName = 'Jones'];
+    List<Id> contactId = new List<Id>();
+
+        for(Contact currContact : contactIdList) {
+            if(currContact != null){
+            contactId.add(currContact.Id);
+        } 
+    }
+    return contactId;
+}
     /**
      * Question 4
      * Update/Uncomment the template code to create a method

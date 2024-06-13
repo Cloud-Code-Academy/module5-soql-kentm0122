@@ -120,7 +120,16 @@ public static List<Id> getContactsIdsByLastName(){
     //[public | private ] [static] data_type method_name (input parameters) {
     //  The body of the method
     //}
-
+    public static Map<Id,Task> getTasksDueNextWeek(){
+        List<Task> taskList = [SELECT Id, Subject, ActivityDate FROM Task WHERE ActivityDate = NEXT_N_DAYS:7];
+        Map<Id,Task> taskMap = new Map<Id,Task>();
+        for (Task currTask : tasklist){
+            if(currTask != null){
+                taskmap.put(currTask.Id, currTask);
+            }
+        }
+        return taskMap;
+    } 
     /**
      * Question 7
      * Update/Uncomment the template code to create a method

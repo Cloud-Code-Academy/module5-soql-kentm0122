@@ -140,6 +140,11 @@ public static List<Id> getContactsIdsByLastName(){
     //[public | private ] [static] data_type method_name (input parameters) {
     //  The body of the method
     //}
+    public static List<Contact> GetContactsByEmailDomain() {
+        Return [SELECT Id,Name, Email
+        FROM Contact
+        WHERE Email LIKE '%@example.com'];
+    }
 
     /**
      * Question 8
@@ -149,18 +154,22 @@ public static List<Id> getContactsIdsByLastName(){
      * @return A list of Opportunity records.
      */
     public static List<Opportunity> getOpportunitiesByNameKeyword(String keyword) {
-        return null; // Replace null with the variable you used to store the result
+    keyword = '%' + keyword + '%';
+    return [SELECT Id, Name
+        FROM Opportunity
+        WHERE Name LIKE :keyword];
     }
-
     /**
      * Question 9
      * Retrieves all Cases that Case Origin is not Web or Email or Blank
      * @return A list of Case records.
      */
     public static List<Case> getFilterCaseOrigins() {
-        return null; // Replace null with the variable you used to store the result
+        return [SELECT CaseNumber, Id, Status, Origin
+        FROM Case
+        WHERE Origin != 'Web' AND Origin != 'Email' AND Origin != '']; // Replace null with the variable you used to store the result
     }
-
+    
     /**
      * Question 10
      * Update/Uncomment the template code to create a method

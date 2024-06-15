@@ -104,7 +104,7 @@ public static List<Id> getContactsIdsByLastName(){
 
     public static Integer getAccountCount(){
 
-    List<AggregateResult> Results = [SELECT COUNT(Id) accCount FROM Account];
+    List<AggregateResult> results = [SELECT COUNT(Id) accCount FROM Account];
         Integer count = (Integer)Results[0].get('accCount');
         return count;
     
@@ -140,7 +140,7 @@ public static List<Id> getContactsIdsByLastName(){
     //[public | private ] [static] data_type method_name (input parameters) {
     //  The body of the method
     //}
-    public static List<Contact> GetContactsByEmailDomain() {
+    public static List<Contact> getContactsByEmailDomain() {
         Return [SELECT Id,Name, Email
         FROM Contact
         WHERE Email LIKE '%@example.com'];

@@ -16,7 +16,7 @@
 * Users of this class can expect to gain a solid understanding of SOQL in Apex and
 * be prepared to handle data retrieval tasks in Salesforce development.
 * 
-* @author Your Name
+* @author Michael Kent
 */
 
 public with sharing class SOQL {
@@ -31,6 +31,9 @@ public with sharing class SOQL {
     //[public | private ] [static] data_type method_name (input parameters) {
     //  The body of the method
     //}
+    public static list<Lead> getAllLeads() {
+        return [SELECT Id, LastName, Company, Phone, Email FROM Lead];
+    }
 
     /**
      * Question 2
@@ -42,6 +45,9 @@ public with sharing class SOQL {
     //[public | private ] [static] data_type method_name (input parameters) {
     //  The body of the method
     //}
+    public static List<contact> getContactsByFirstName(String firstName) {
+        return [SELECT Id, firstName, LastName, Name FROM CONTACT WHERE firstName = :firstName];
+    }
 
     /**
      * Question 3
@@ -54,6 +60,17 @@ public with sharing class SOQL {
     //  The body of the method
     //}
 
+public static List<Id> getContactsIdsByLastName(){
+    List<Contact> contactIdList = [SELECT Id FROM CONTACT WHERE lastName = 'Smith' OR lastName = 'Jones'];
+    List<Id> contactId = new List<Id>();
+
+        for(Contact currContact : contactIdList) {
+            if(currContact != null){
+            contactId.add(currContact.Id);
+        } 
+    }
+    return contactId;
+}
     /**
      * Question 4
      * Update/Uncomment the template code to create a method
@@ -67,6 +84,12 @@ public with sharing class SOQL {
     //  The body of the method
     //}
 
+    public static List<Opportunity> getClosedWonOpportunityCountByAccount(Id accountId){
+        return [SELECT Name, StageName, CloseDate, Amount,  AccountId
+        FROM Opportunity
+        WHERE AccountId = :accountId AND StageName = 'Closed Won']; 
+    }
+
     /**
      * Question 5
      * Update/Uncomment the template code to create a method
@@ -74,9 +97,18 @@ public with sharing class SOQL {
      * @return The Integer count of Account records.
      * Update the corresponding test class and testGetAccountCount method to cover this method
      */
+
     //[public | private ] [static] data_type method_name (input parameters) {
     //  The body of the method
     //}
+
+    public static Integer getAccountCount(){
+
+    List<AggregateResult> results = [SELECT COUNT(Id) accCount FROM Account];
+        Integer count = (Integer)Results[0].get('accCount');
+        return count;
+    
+}
 
     /**
      * Question 6
@@ -88,7 +120,16 @@ public with sharing class SOQL {
     //[public | private ] [static] data_type method_name (input parameters) {
     //  The body of the method
     //}
-
+    public static Map<Id,Task> getTasksDueNextWeek(){
+        List<Task> taskList = [SELECT Id, Subject, ActivityDate FROM Task WHERE ActivityDate = NEXT_N_DAYS:7];
+        Map<Id,Task> taskMap = new Map<Id,Task>();
+        for (Task currTask : tasklist){
+            if(currTask != null){
+                taskmap.put(currTask.Id, currTask);
+            }
+        }
+        return taskMap;
+    } 
     /**
      * Question 7
      * Update/Uncomment the template code to create a method
@@ -99,6 +140,11 @@ public with sharing class SOQL {
     //[public | private ] [static] data_type method_name (input parameters) {
     //  The body of the method
     //}
+    public static List<Contact> getContactsByEmailDomain() {
+        Return [SELECT Id,Name, Email
+        FROM Contact
+        WHERE Email LIKE '%@example.com'];
+    }
 
     /**
      * Question 8
@@ -108,18 +154,22 @@ public with sharing class SOQL {
      * @return A list of Opportunity records.
      */
     public static List<Opportunity> getOpportunitiesByNameKeyword(String keyword) {
-        return null; // Replace null with the variable you used to store the result
+    keyword = '%' + keyword + '%';
+    return [SELECT Id, Name
+        FROM Opportunity
+        WHERE Name LIKE :keyword];
     }
-
     /**
      * Question 9
      * Retrieves all Cases that Case Origin is not Web or Email or Blank
      * @return A list of Case records.
      */
     public static List<Case> getFilterCaseOrigins() {
-        return null; // Replace null with the variable you used to store the result
+        return [SELECT CaseNumber, Id, Status, Origin
+        FROM Case
+        WHERE Origin != 'Web' AND Origin != 'Email' AND Origin != '']; // Replace null with the variable you used to store the result
     }
-
+    
     /**
      * Question 10
      * Update/Uncomment the template code to create a method

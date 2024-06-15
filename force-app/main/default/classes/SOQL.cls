@@ -182,7 +182,14 @@ public static List<Id> getContactsIdsByLastName(){
      */
     //[public | private ] [static] data_type method_name (input parameters) {
     //  The body of the method
-    //}    
+    //}
+    
+    public static List<Lead> getLeadsBySourceOrTitle(String leadSource, String keyWord){
+        keyWord = '%' + keyWord + '%';
+        return [SELECT Id, Name, Email, Phone, Company, Title, lastName
+        FROM Lead
+        WHERE LeadSource = :leadSource OR Title like :keyWord];
+    }
 
     /**
      * Question 11
@@ -193,15 +200,24 @@ public static List<Id> getContactsIdsByLastName(){
      */
     public static List<String> getContactNamesByAccount(Id accountId) {
         // Create a list to hold the Contact LastNames
-
+        List<String> lastNamesList = new List<String>();
         // Query the Contacts
         // Loop through each Contact and add the LastName to the list
         //for () {
         //    
         //}
+        List<Contact> contactList = [SELECT Id, LastName, AccountId
+        FROM Contact
+        WHERE AccountId = :accountId];
+
+        for(Contact currContact : contactList){
+            if(currContact != null){
+                lastNamesList.add(currContact.LastName);
+            }
+        }
 
         // Return the list of Contact LastNames
-        return null; // Replace null with the variable you used to store the result
+        return lastNamesList; // Replace null with the variable you used to store the result
     }
 
     /**
@@ -213,9 +229,11 @@ public static List<Id> getContactsIdsByLastName(){
      */
     public static Decimal getTotalRevenueByStage(String stage) {
         // Use AggregateQuery to get the total revenue
+        AggregateResult[] result = [SELECT SUM(Amount) totalRev FROM Opportunity WHERE StageName = :stage OR amount > 10000];
+        Decimal totalRevenue = (DECIMAL) result[0].get('totalRev');
 
         // Return the total revenue
-        return null; // Replace null with the variable you used to store the result
+        return totalRevenue; // Replace null with the variable you used to store the result
     }
 
     /**
@@ -224,7 +242,10 @@ public static List<Id> getContactsIdsByLastName(){
      * @return A list of the first 10 Accounts ordered by Name.
      */
     public static List<Account> getFirstTenAccounts() {
-        return null; // Replace null with the variable you used to store the result
+        return [SELECT Id, Name
+        FROM Account
+        ORDER BY Name
+        LIMIT 10]; // Replace null with the variable you used to store the result
     }
     
     /**
@@ -233,7 +254,11 @@ public static List<Id> getContactsIdsByLastName(){
      * @return A list of Opportunities with an Amount greater than 100,000, ordered by CloseDate, and limited to 5 records.
      */
     public static List<Opportunity> getHighValueOpportunities() {
-        return null; // Replace null with the variable you used to store the result
+        return [SELECT Name, CloseDate, Amount
+        FROM Opportunity
+        WHERE Amount > 100000
+        ORDER BY CloseDate
+        LIMIT 5]; // Replace null with the variable you used to store the result
     }
     
     /**
@@ -242,7 +267,10 @@ public static List<Id> getContactsIdsByLastName(){
      * @return A list of Contacts
      */
     public static List<Contact> getBirthdateContacts() {
-        return null; // Replace null with the variable you used to store the result
+        return [SELECT Birthdate
+        FROM Contact
+        ORDER BY Birthdate DESC
+        LIMIT 3 ]; // Replace null with the variable you used to store the result
     }
     
     /**

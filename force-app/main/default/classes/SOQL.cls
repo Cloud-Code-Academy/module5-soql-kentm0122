@@ -452,18 +452,18 @@ public static List<Id> getContactsIdsByLastName(){
         // Query the Contacts
         Map<Id, Contact> accToContactMap = new map<Id, Contact>();
         // Loop through each Contact and add the Account Id and Contact to the map
-        Contact[] getContacts = [SELECT Id, AccountId, CreatedDate FROM Contact WHERE AccountId IN :accountIds ORDER BY AccountId, CreatedDate ASC];
-        for(Contact currContact : getContacts) {
+        Account[] getContacts = [SELECT Id, (SELECT Id, Name, AccountId, FirstName FROM Contacts ORDER BY FirstName) FROM Account WHERE Id IN :accountIds];
+        
+        for(Account currAccount : getContacts) {
 
         // Loop through each Opportunity
-           accToContactMap.put(currContact.AccountId, currContact);
-           
-        }       
+           accToContactMap.put(currAccount.Id, currAccount.Contacts[0]);
+           }       
         // Update the Opportunity primary contact from accountToContactMap
         for(Opportunity currOpp : oppsToUpdate) {
         // Update the Opportunities
         If(accToContactMap.containsKey(currOpp.AccountId)){
-        currOpp.Primary_Contact__c = accToContactMap.get(currOpp.AccountId).Id;
+           currOpp.Primary_Contact__c = accToContactMap.get(currOpp.AccountId).Id;
         }
         update oppsToUpdate;
         }

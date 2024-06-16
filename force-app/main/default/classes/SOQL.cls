@@ -377,20 +377,23 @@ public static List<Id> getContactsIdsByLastName(){
      */
     public static List<Account> findAccountsByLeadEmailDomains(Set<Id> leadIds) {
         // Query the Leads
-
+        Lead[] getLeads = [SELECT Id, Email FROM Lead WHERE Id IN :leadIds];
         // Create a set of email domains from the Leads
-
+        Set<String> leadEmail = new Set<String>();
         // Loop through each Lead
-
-            // Get the email from the Lead
-
-            // Check if the email is not null
-
-                // Add the email domain to the set
-
-        
+        // Get the email from the Lead
+        // Check if the email is not null
+        // Add the email domain to the set
+        for(Lead currEmail : getLeads){
+            If(currEmail.Email != null){
+                String currEmailDomain = currEmail.emaiL.substringAfter('@');
+                String currWebSite = 'www.' + currEmailDomain;
+                // Add the website to the set
+                leadEmail.add(currWebSite);
+            }
+        }
         // Query the Accounts
-        return null; // Replace null with the variable you used to store the result
+        return [SELECT Id, Website FROM Account WHERE Website IN :leadEmail]; // Replace null with the variable you used to store the result
     }
 
     /**
@@ -403,18 +406,24 @@ public static List<Id> getContactsIdsByLastName(){
      */
     public static void cloneLineItems(Id origOppId, List<Id> cloneOppIds) {
         // Query the original Opportunity Line Items
-
+        OpportunityLineItem [] orgLineItems = [SELECT Id, OpportunityId, Quantity, UnitPrice, PricebookEntryId, Description, Discount FROM OpportunityLineItem WHERE OpportunityId = :origOppId];
         // Create a list to hold the new line items
-
+        OpportunityLineItem [] newLineItems = new List<OpportunityLineItem>();
         // Generate a random number between 1 and 3
-
+        Integer randomNumber = (Integer) Math.floor(Math.random() * 3) + 1;
         // Loop through each cloned Opportunity Id
-
-            // Loop through each original line item
-
-                // Clone the original line item and add the random number to the quantity
-
+        for(Id currOppId : cloneOppIds) {
+        // Loop through each original line item
+            for(OpportunityLineItem currLineItem : orgLineItems){
+        // Clone the original line item and add the random number to the quantity
+                opportunityLineItem singleLineItem = currLineItem.clone(false, true, false, false);
+                singleLineItem.OpportunityId = currOppId;
+                singleLineItem.Quantity = currLineItem.Quantity + randomNumber;
+                newLineItems.add(singleLineItem);
+            }
+        }
         // Insert the new line items
+        insert newLineItems;
     }
     
     /**

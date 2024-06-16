@@ -279,7 +279,7 @@ public static List<Id> getContactsIdsByLastName(){
      * @return A list of Cases
      */
     public static List<Case> getCasesWithStatus() {
-        return null; // Replace null with the variable you used to store the result
+        return [SELECT Id, Status, CreatedDate FROM Case ORDER BY CreatedDate LIMIT 10 OFFSET 5]; // Replace null with the variable you used to store the result
     }
 
     /**
@@ -291,14 +291,17 @@ public static List<Id> getContactsIdsByLastName(){
      */
     public static Set<Id> getCaseIdsByAccount(Id accountId) {
         // Create a set to hold the Case Ids
-
+        Set<Id> caseIdSet = new Set<Id>();
         // Query the Cases
+        List<Case> caseList = [SELECT Id, accountId FROM Case WHERE accountId = :accountId];
         // Loop through each Case and add the Id to the set
         //for () {
         //    
         //}
-
-        return null; // Replace null with the variable you used to store the result
+        for (Case currCase : caseList){
+            caseIdSet.add(currCase.Id);
+        }
+        return caseIdSet; // Replace null with the variable you used to store the result
     }
 
     /**
@@ -311,11 +314,14 @@ public static List<Id> getContactsIdsByLastName(){
     public static Map<Id, String> getAccountIdsToNamesNotInCountry(String country) {
         // Create a map to hold the Account Ids to Account Names
         Map<Id, String> accountIdsToNames = new Map<Id, String>();
-
         // Query the Accounts
+        List<Account> accountList = [SELECT Id, Name, BillingCountry FROM Account WHERE BillingCountry != :country];
         // Loop through each Account and add the Id and Name to the map
+        for (Account currAccount : accountList) {
+            accountIdsToNames.put(currAccount.Id, currAccount.Name);
+        }
 
-        return null; // Replace null with the variable you used to store the result
+        return accountIdsToNames; // Replace null with the variable you used to store the result
     }
 
     /**
@@ -326,7 +332,9 @@ public static List<Id> getContactsIdsByLastName(){
      * @return The Account Name of the Contact.
      */
     public static String getAccountNameForContact(String contactId) {
-        return null; // Replace null with the variable you used to store the result
+        List<Contact> contactList = [SELECT Id, Account.Name FROM Contact WHERE Id = :contactId];
+        String accName = contactList[0].Account.Name;
+        return accName; // Replace null with the variable you used to store the result
     }    
 
     /**
@@ -337,7 +345,8 @@ public static List<Id> getContactsIdsByLastName(){
      * @return An Account record with related Opportunities.
      */
     public static Account getAccountAndOpportunitiesFromAccountId(Id accountId) {
-        return null; // Replace null with the variable you used to store the result
+        Account accountWithOpportunities = [SELECT Id, Name, (SELECT Id, Name FROM Opportunities) FROM Account WHERE Id = :accountId];
+        return accountWithOpportunities; // Replace null with the variable you used to store the result
     }
 
     /**

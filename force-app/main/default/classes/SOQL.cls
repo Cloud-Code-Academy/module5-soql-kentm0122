@@ -358,11 +358,13 @@ public static List<Id> getContactsIdsByLastName(){
      */
     public static List<Contact> getAccountsWithContactsByState(Id accountId) {
         // Query the Account
-
+        Account[] getAccount = [SELECT Id, BillingState FROM Account WHERE Id = :accountId]; 
         // Store the Account's BillingState
-
+        String accBillingState = getAccount[0].BillingState;
         // Query the Contacts
-        return null; // Replace null with the variable you used to store the result
+        Contact[] getContact = [SELECT Id, MailingState FROM CONTACT WHERE MailingState = :accBillingState];
+        // Return the list of Contact records.
+        return getContact; // Replace null with the variable you used to store the result
     }
 
     /**

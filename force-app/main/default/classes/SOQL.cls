@@ -433,7 +433,7 @@ public static List<Id> getContactsIdsByLastName(){
      * @return A list of filtered Opportunity
      */
     public static List<Opportunity> getOpportunityDetailsForClosedWon() {        
-        return null; // Replace null with the variable you used to store the result
+        return [SELECT Id, Name, Stagename, Owner.Name, Account.Name, Accountid FROM Opportunity WHERE StageName = 'Closed Won']; // Replace null with the variable you used to store the result
     }
 
     /**
@@ -443,17 +443,29 @@ public static List<Id> getContactsIdsByLastName(){
      */
     public static void setPrimaryContact() {
         //Use the getOpportunityDetailsForClosedWon() method to get the Opportunities
-
+        Opportunity[] oppsToUpdate = getOpportunityDetailsForClosedWon();
         // Create a set of Account Ids from the Opportunities
-
+        Set<Id> accountIds = new Set<Id>();
+        for(Opportunity currOpp : oppsToUpdate) {
+            accountIds.add(currOpp.AccountId);
+        }
         // Query the Contacts
-
+        Map<Id, Contact> accToContactMap = new map<Id, Contact>();
         // Loop through each Contact and add the Account Id and Contact to the map
-        
+        Contact[] getContacts = [SELECT Id, AccountId, CreatedDate FROM Contact WHERE AccountId IN :accountIds ORDER BY AccountId, CreatedDate ASC];
+        for(Contact currContact : getContacts) {
+
         // Loop through each Opportunity
-
-                // Update the Opportunity primary contact from accountToContactMap
-
+           accToContactMap.put(currContact.AccountId, currContact);
+           
+        }       
+        // Update the Opportunity primary contact from accountToContactMap
+        for(Opportunity currOpp : oppsToUpdate) {
         // Update the Opportunities
+        If(accToContactMap.containsKey(currOpp.AccountId)){
+        currOpp.Primary_Contact__c = accToContactMap.get(currOpp.AccountId).Id;
+        }
+        update oppsToUpdate;
+        }
     }
 }

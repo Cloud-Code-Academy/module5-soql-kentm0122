@@ -279,7 +279,7 @@ public static List<Id> getContactsIdsByLastName(){
      * @return A list of Cases
      */
     public static List<Case> getCasesWithStatus() {
-        return null; // Replace null with the variable you used to store the result
+        return [SELECT Id, Status, CreatedDate FROM Case ORDER BY CreatedDate LIMIT 10 OFFSET 5]; // Replace null with the variable you used to store the result
     }
 
     /**
@@ -291,14 +291,17 @@ public static List<Id> getContactsIdsByLastName(){
      */
     public static Set<Id> getCaseIdsByAccount(Id accountId) {
         // Create a set to hold the Case Ids
-
+        Set<Id> caseIdSet = new Set<Id>();
         // Query the Cases
+        List<Case> caseList = [SELECT Id, accountId FROM Case WHERE accountId = :accountId];
         // Loop through each Case and add the Id to the set
         //for () {
         //    
         //}
-
-        return null; // Replace null with the variable you used to store the result
+        for (Case currCase : caseList){
+            caseIdSet.add(currCase.Id);
+        }
+        return caseIdSet; // Replace null with the variable you used to store the result
     }
 
     /**
@@ -311,11 +314,14 @@ public static List<Id> getContactsIdsByLastName(){
     public static Map<Id, String> getAccountIdsToNamesNotInCountry(String country) {
         // Create a map to hold the Account Ids to Account Names
         Map<Id, String> accountIdsToNames = new Map<Id, String>();
-
         // Query the Accounts
+        List<Account> accountList = [SELECT Id, Name, BillingCountry FROM Account WHERE BillingCountry != :country];
         // Loop through each Account and add the Id and Name to the map
+        for (Account currAccount : accountList) {
+            accountIdsToNames.put(currAccount.Id, currAccount.Name);
+        }
 
-        return null; // Replace null with the variable you used to store the result
+        return accountIdsToNames; // Replace null with the variable you used to store the result
     }
 
     /**
@@ -326,7 +332,9 @@ public static List<Id> getContactsIdsByLastName(){
      * @return The Account Name of the Contact.
      */
     public static String getAccountNameForContact(String contactId) {
-        return null; // Replace null with the variable you used to store the result
+        List<Contact> contactList = [SELECT Id, Account.Name FROM Contact WHERE Id = :contactId];
+        String accName = contactList[0].Account.Name;
+        return accName; // Replace null with the variable you used to store the result
     }    
 
     /**
@@ -337,7 +345,8 @@ public static List<Id> getContactsIdsByLastName(){
      * @return An Account record with related Opportunities.
      */
     public static Account getAccountAndOpportunitiesFromAccountId(Id accountId) {
-        return null; // Replace null with the variable you used to store the result
+        Account accountWithOpportunities = [SELECT Id, Name, (SELECT Id, Name FROM Opportunities) FROM Account WHERE Id = :accountId];
+        return accountWithOpportunities; // Replace null with the variable you used to store the result
     }
 
     /**
@@ -349,11 +358,13 @@ public static List<Id> getContactsIdsByLastName(){
      */
     public static List<Contact> getAccountsWithContactsByState(Id accountId) {
         // Query the Account
-
+        Account[] getAccount = [SELECT Id, BillingState FROM Account WHERE Id = :accountId]; 
         // Store the Account's BillingState
-
+        String accBillingState = getAccount[0].BillingState;
         // Query the Contacts
-        return null; // Replace null with the variable you used to store the result
+        Contact[] getContact = [SELECT Id, MailingState FROM CONTACT WHERE MailingState = :accBillingState];
+        // Return the list of Contact records.
+        return getContact; // Replace null with the variable you used to store the result
     }
 
     /**
@@ -366,20 +377,23 @@ public static List<Id> getContactsIdsByLastName(){
      */
     public static List<Account> findAccountsByLeadEmailDomains(Set<Id> leadIds) {
         // Query the Leads
-
+        Lead[] getLeads = [SELECT Id, Email FROM Lead WHERE Id IN :leadIds];
         // Create a set of email domains from the Leads
-
+        Set<String> leadEmail = new Set<String>();
         // Loop through each Lead
-
-            // Get the email from the Lead
-
-            // Check if the email is not null
-
-                // Add the email domain to the set
-
-        
+        // Get the email from the Lead
+        // Check if the email is not null
+        // Add the email domain to the set
+        for(Lead currEmail : getLeads){
+            If(currEmail.Email != null){
+                String currEmailDomain = currEmail.emaiL.substringAfter('@');
+                String currWebSite = 'www.' + currEmailDomain;
+                // Add the website to the set
+                leadEmail.add(currWebSite);
+            }
+        }
         // Query the Accounts
-        return null; // Replace null with the variable you used to store the result
+        return [SELECT Id, Website FROM Account WHERE Website IN :leadEmail]; // Replace null with the variable you used to store the result
     }
 
     /**
@@ -392,18 +406,24 @@ public static List<Id> getContactsIdsByLastName(){
      */
     public static void cloneLineItems(Id origOppId, List<Id> cloneOppIds) {
         // Query the original Opportunity Line Items
-
+        OpportunityLineItem [] orgLineItems = [SELECT Id, OpportunityId, Quantity, UnitPrice, PricebookEntryId, Description, Discount FROM OpportunityLineItem WHERE OpportunityId = :origOppId];
         // Create a list to hold the new line items
-
+        OpportunityLineItem [] newLineItems = new List<OpportunityLineItem>();
         // Generate a random number between 1 and 3
-
+        Integer randomNumber = (Integer) Math.floor(Math.random() * 3) + 1;
         // Loop through each cloned Opportunity Id
-
-            // Loop through each original line item
-
-                // Clone the original line item and add the random number to the quantity
-
+        for(Id currOppId : cloneOppIds) {
+        // Loop through each original line item
+            for(OpportunityLineItem currLineItem : orgLineItems){
+        // Clone the original line item and add the random number to the quantity
+                opportunityLineItem singleLineItem = currLineItem.clone(false, true, false, false);
+                singleLineItem.OpportunityId = currOppId;
+                singleLineItem.Quantity = currLineItem.Quantity + randomNumber;
+                newLineItems.add(singleLineItem);
+            }
+        }
         // Insert the new line items
+        insert newLineItems;
     }
     
     /**
@@ -413,7 +433,7 @@ public static List<Id> getContactsIdsByLastName(){
      * @return A list of filtered Opportunity
      */
     public static List<Opportunity> getOpportunityDetailsForClosedWon() {        
-        return null; // Replace null with the variable you used to store the result
+        return [SELECT Id, Name, Stagename, Owner.Name, Account.Name, Accountid FROM Opportunity WHERE StageName = 'Closed Won']; // Replace null with the variable you used to store the result
     }
 
     /**
@@ -423,17 +443,30 @@ public static List<Id> getContactsIdsByLastName(){
      */
     public static void setPrimaryContact() {
         //Use the getOpportunityDetailsForClosedWon() method to get the Opportunities
-
+        Opportunity[] oppsToUpdate = getOpportunityDetailsForClosedWon();
         // Create a set of Account Ids from the Opportunities
-
+        Set<Id> accountIds = new Set<Id>();
+        for(Opportunity currOpp : oppsToUpdate) {
+            accountIds.add(currOpp.AccountId);
+        }
         // Query the Contacts
-
+        Map<Id, Contact> accToContactMap = new map<Id, Contact>();
         // Loop through each Contact and add the Account Id and Contact to the map
+        Account[] getContacts = [SELECT Id, (SELECT Id, Name, AccountId, FirstName FROM Contacts ORDER BY FirstName) FROM Account WHERE Id IN :accountIds];
         
+        for(Account currAccount : getContacts) {
+
         // Loop through each Opportunity
-
-                // Update the Opportunity primary contact from accountToContactMap
-
+           accToContactMap.put(currAccount.Id, currAccount.Contacts[0]);
+           }       
+        // Update the Opportunity primary contact from accountToContactMap
+        for(Opportunity currOpp : oppsToUpdate) {
         // Update the Opportunities
+        If(accToContactMap.containsKey(currOpp.AccountId)){
+           currOpp.Primary_Contact__c = accToContactMap.get(currOpp.AccountId).Id;
+        }
+        
+        }
+        update oppsToUpdate;
     }
 }

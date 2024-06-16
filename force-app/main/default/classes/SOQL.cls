@@ -465,7 +465,8 @@ public static List<Id> getContactsIdsByLastName(){
         If(accToContactMap.containsKey(currOpp.AccountId)){
            currOpp.Primary_Contact__c = accToContactMap.get(currOpp.AccountId).Id;
         }
-        update oppsToUpdate;
+        
         }
+        update oppsToUpdate;
     }
 }
